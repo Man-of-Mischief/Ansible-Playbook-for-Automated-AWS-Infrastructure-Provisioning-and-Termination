@@ -1,0 +1,2 @@
+# Ansible-Playbook-for-Automated-AWS-Infrastructure-Provisioning-and-Termination
+This repository contains an Ansible playbook for automating the creation and provisioning of AWS infrastructure. The playbook provisions EC2 instances, sets up security groups, and configures the instances for hosting a web application. It also includes a play to destroy all the created resources when they are no longer needed. 
