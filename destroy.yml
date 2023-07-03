@@ -1,0 +1,47 @@
+---
+- name: "Destroy AWS infra"
+  hosts: localhost
+  gather_facts: false
+  vars:
+    region: "ap-south-1"
+    project: "zomato"
+    env: "prod"
+  vars_files:
+    - keys.yml
+  tasks:
+
+    - name: "Gathering instance information"
+      amazon.aws.ec2_instance_info:
+        access_key: "{{ access_key }}"
+        secret_key: "{{ secret_key }}"
+        region: "{{ region }}"
+        filters:
+          "tag:Name": "{{ project }}-{{env}}-webserver"
+          "tag:project": "{{ project }}"
+          "tag:env": "{{ env }}"
+      register: zomatos
+
+    - name: "Terminate instances"
+      amazon.aws.ec2_instance:
+        region: "{{ region }}"
+        access_key: "{{ access_key }}"
+        secret_key: "{{ secret_key }}"
+        instance_ids: "{{ item.instance_id }}"
+        state: absent
+      with_items: "{{ zomatos.instances }}"
+
+    - name: "Delete security group"
+      amazon.aws.ec2_security_group:
+        region: "{{ region }}"
+        access_key: "{{ access_key }}"
+        secret_key: "{{ secret_key }}"
+        name: "{{ project }}-{{ env }}-webserver"
+        state: absent
+
+    - name: "Delete keypair"
+      amazon.aws.ec2_key:
+        region: "{{ region }}"
+        access_key: "{{ access_key }}"
+        secret_key: "{{ secret_key }}"
+        name: "{{ project }}-{{ env }}"
+        state: absent
